@@ -1,4 +1,4 @@
-// ---- DOM elements (adjust IDs to match index.html) ----
+// ---- DOM elements ----
 const form = document.getElementById("checkInForm");
 const nameInput = document.getElementById("attendeeName");
 const teamSelect = document.getElementById("teamSelect");
@@ -12,8 +12,8 @@ const celebration = document.getElementById("celebration");
 const maxCount = 50;
 let count = 0;
 let attendees = []; // { name, teamName }
-const teamCounts = {};  // keyed by option value, e.g. { water: 0, ... }
-const teamNames = {};   // option value -> display name
+const teamCounts = {}; // keyed by option value, e.g. { water: 0, zero: 0, power: 0 }
+const teamNames = {}; // option value -> display name
 
 // Build team data from the <select> so values/names are never hardcoded
 Array.from(teamSelect.options).forEach(function (opt) {
@@ -25,7 +25,10 @@ Array.from(teamSelect.options).forEach(function (opt) {
 
 // ---- Local storage ----
 function saveProgress() {
-  localStorage.setItem("summitData", JSON.stringify({ count, teamCounts, attendees }));
+  localStorage.setItem(
+    "summitData",
+    JSON.stringify({ count, teamCounts, attendees })
+  );
 }
 
 function loadProgress() {
@@ -60,11 +63,17 @@ function render() {
 function showCelebration() {
   const top = Math.max(...Object.values(teamCounts));
   const winners = Object.keys(teamCounts)
-    .filter(function (t) { return teamCounts[t] === top; })
-    .map(function (t) { return teamNames[t]; });
+    .filter(function (t) {
+      return teamCounts[t] === top;
+    })
+    .map(function (t) {
+      return teamNames[t];
+    });
   celebration.textContent =
     "🎉 Goal reached! " +
-    (winners.length > 1 ? "It's a tie: " + winners.join(" & ") : winners[0] + " wins") +
+    (winners.length > 1
+      ? "It's a tie: " + winners.join(" & ")
+      : winners[0] + " wins") +
     "!";
 }
 
@@ -82,7 +91,10 @@ form.addEventListener("submit", function (event) {
   teamCounts[team]++;
   attendees.push({ name, teamName });
 
-  greeting.textContent = "Welcome, " + name + "! You're checked in for " + teamName + ".";
+  greeting.textContent =
+    "Welcome, " + name + "! You're checked in for " + teamName + ".";
+  greeting.classList.add("success-message");
+  greeting.style.display = "block";
 
   if (count === maxCount) showCelebration();
 
